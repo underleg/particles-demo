@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Particles Demo</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0b14; }
+      canvas { display: block; }
+      #info {
+        position: fixed; left: 0; right: 0; bottom: 0;
+        padding: 12px 16px; box-sizing: border-box;
+        font: 12px/1.5 ui-monospace, Menlo, monospace; color: #b8b4cc;
+        background: rgba(11, 11, 20, 0.85); border-top: 1px solid #2a2840;
+      }
+      #info h1 { margin: 0 0 4px; font-size: 13px; color: #e4dcff; }
+      #info ul { margin: 0; padding-left: 18px; }
+      #top {
+        position: fixed; left: 0; right: 0; top: 0;
+        font: 13px/1.5 ui-monospace, Menlo, monospace; color: #e4dcff;
+        background: rgba(11, 11, 20, 0.85); border-bottom: 1px solid #2a2840;
+      }
+      #menu { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; }
+      #perf {
+        padding: 4px 16px; font-size: 12px; color: #8fd6a8;
+        border-top: 1px solid #2a2840; font-variant-numeric: tabular-nums;
+      }
+      #menu .title { margin-right: auto; }
+      #menu label { color: #b8b4cc; white-space: nowrap; }
+      #menu select {
+        font: inherit; color: #e4dcff; background: #14132a; cursor: pointer;
+        border: 1px solid #2a2840; border-radius: 4px; padding: 2px 6px; margin-left: 4px;
+      }
+      #menu select:hover, #menu select:focus { border-color: #6a5acd; }
+      #error {
+        position: fixed; left: 16px; right: 16px; top: 50%; margin: 0;
+        font: 13px/1.5 ui-monospace, Menlo, monospace; color: #ff8a8a; white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="top">
+      <nav id="menu">
+        <span class="title">Particles Demo</span>
+        <label>Emitter
+          <select id="select-emitter">
+            <option value="cascade" selected>Cascade</option>
+            <option value="birds">Birds</option>
+            <option value="swirl">Swirl</option>
+          </select>
+        </label>
+        <label>Skulls
+          <select id="select-skulls">
+            <option value="flipbook" selected>Flipbook</option>
+            <option value="spine">Spine (up to 1,000)</option>
+          </select>
+        </label>
+        <label># particles
+          <select id="select-count">
+            <option value="10">10</option>
+            <option value="100" selected>100</option>
+            <option value="1000">1,000</option>
+            <option value="10000">10,000</option>
+          </select>
+        </label>
+        <label>Info
+          <select id="select-info" aria-controls="info">
+            <option value="hidden" selected>Hidden</option>
+            <option value="shown">Shown</option>
+          </select>
+        </label>
+      </nav>
+      <div id="perf" aria-live="off"
+        title="FPS = frames per second · DC = draw calls per frame · Em = emitters · Pt = live particles · Max = peak particles since load · FT = CPU frame time">FPS – | DC – | Em – | Pt – | Max – | FT –</div>
+    </header>
+    <footer id="info" hidden>
+      <h1>Skull emitters (from Particlr's CC0 "Portal" pull layer) · PixiJS v8 · @particlr/runtime · Spine 4.2</h1>
+      Three setups, one emitter each, picked from the menu; seed 77, normal blend. Each is a Particlr file, <code>public/effects/&lt;setup&gt;.prt</code>, with the skull sheet embedded; the app sets the count, the screen-relative positions and the per-step behaviour (Swirl's sway and second attractor, Cascade's floor spin) on top. Only the shown setup is simulated. <b># particles</b> sets how many skulls are alive at once; changing it rebuilds the emitter, because a Particlr pool's size is fixed when its effect is built.
+      <ul>
+        <li><b>Emitter: Cascade</b> — # particles alive at once (the cap; births run 50% ahead of deaths to keep it full) 56–80 px skulls fired upward in a 30° fan at 300–360 px/s, under 450 px/s² gravity; they land on a floor 80 px below the emitter and bounce (55% vertical speed kept, 80% sideways); 2.5–3.5 s life, growing from half size to full; fades in over the first 15% of life, holds at 90% opacity, then fades out only in the last 179–250 ms (the gradient is per life fraction, so the exact time depends on each skull's lifetime). Each skull has a random tilt (±180°) and faces left or right at random (50% mirrored). It doesn't spin in the air; each time it hits the floor it takes a new random spin, 90–360 °/s either way (set by the host, as Particlr's collision can't change spin). Drawn oldest in front, so the large landed skulls cover the small rising ones.</li>
+        <li><b>Emitter: Birds</b> — exactly # particles skulls flying left to right in a 300 px band, entering and leaving off screen (a kill zone just past the right edge removes each one, and a new one enters on the left). Speed is random, 40–120 px/s, and size follows it (bySpeed: 32–90 px), so smaller birds are slower and drawn further back. All mirrored to face their flight; no tilt or fade. Simulated 40 s ahead at startup so the flock already spans the screen.</li>
+        <li><b>Emitter: Swirl</b> — the cascade's fountain fired from lower down (85% of the way down the open band), its emitter swinging left and right on a 2 s sine wave (±25% of the width, so from under one attractor to under the other; y fixed), with no gravity or floor, pulled by two attractors at (25%, 50%) and (75%, 50%) of the band. Each pulls straight at its point at up to 3,000 px/s², easing smoothly to nothing at a radius of 1.2× its distance from the emitter. One is the layer's own attractor and the other is Particlr's host attractor; the two use the same force formula, so they match. Mild drag (1) lets skulls spiral in; without it they swing straight through the points and out again. Simulated in world space, so moving the emitter leaves skulls already in flight where they are.</li>
+        <li><b>Skulls: Spine</b> — a live Spine skeleton per particle, posed each frame from the particle's age. Offered up to 1,000 particles: at ~2 ms per 250 skeletons, 10,000 would run at a few fps. # particles stops at 10,000 because Particlr caps a single emitter there.</li>
+        <li><b>Skulls: Flipbook</b> — the 'still' loop (1.28 s) as an 8×5 sheet of 96 px frames (~31 fps), embedded in each .prt file and drawn by particlr itself.</li>
+      </ul>
+      Deterministic: <code>Effect.step(dt)</code> per Pixi tick, then <code>PixiParticleRenderer.sync()</code>.
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Export Effects</title>
+    <style>
+      html, body { margin: 0; background: #0b0b14; color: #b8b4cc; }
+      pre { margin: 16px; font: 13px/1.5 ui-monospace, Menlo, monospace; white-space: pre-wrap; }
+      button { margin: 16px 16px 0; font: 13px ui-monospace, Menlo, monospace; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <!-- Dev tool, not part of the app or its build: open http://localhost:<port>/export.html under `npm run dev` to
+         regenerate public/effects/*.prt (after changing src/skullLayer.ts or the skull art). -->
+    <!-- A button, not on load: the dev server reloads this page whenever source changes, which would otherwise
+         silently overwrite the files mid-edit. -->
+    <button id="export" type="button">Export public/effects/*.prt</button>
+    <pre id="log"></pre>
+    <script type="module" src="/src/exportEffects.ts"></script>
+  </body>
+</html>
